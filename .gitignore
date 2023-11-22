@@ -1,0 +1,52 @@
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+*~
+*.sw[mnpcod]
+.tmp
+*.tmp
+*.tmp.*
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+
+*.log
+*.pack
+log.txt
+npm-debug.log*
+
+*.pack
+/.angular
+.angular
+
+distribuition.cer
+ios_distribuition.cer
+
+/.idea
+/.ionic
+/.sass-cache
+/.sourcemaps
+/.versions
+/.vscode
+/coverage
+/dist
+/node_modules
+/platforms
+/plugins
+/www
+/resources
+
+/automatic-build/build
+/automatic-build/.env
+
+.angular/cache/17.0.1/angular-webpack/fe7755838dfc90f3922d22ad8aec9264182fb02b/2.pack
+.angular/cache/17.0.1/angular-webpack/443a806a739c7dfcdba86b0df051158d0888dd96/12.pack
+/.angular/cache/17.0.1/angular-webpack/fe7755838dfc90f3922d22ad8aec9264182fb02b/2.pack
+/.angular/cache/17.0.1/angular-webpack/443a806a739c7dfcdba86b0df051158d0888dd96/12.pack
+
+echo .angular/cache/17.0.1/angular-webpack/fe7755838dfc90f3922d22ad8aec9264182fb02b/2.pack >> .gitignore
+echo .angular/cache/17.0.1/angular-webpack/443a806a739c7dfcdba86b0df051158d0888dd96/12.pack >> .gitignore
+git add .gitignore && git commit -m "ignoreCeroPackHugeFile"

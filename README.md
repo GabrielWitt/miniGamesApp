@@ -36,8 +36,6 @@ UI Enhancements: Provide visual cues for the players' moves and winning combinat
 
 **Responsive Design:** Ensure that the games are responsive and playable on various devices.
 
-**Unit Testing:** Write unit tests to validate the functionality of each game component and service.
-
 **Documentation:** Document the codebase and include comments for better understanding and future reference.
 
 ## Bonus Enhancements:

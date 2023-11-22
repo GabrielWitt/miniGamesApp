@@ -2,6 +2,7 @@ import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController, AlertController, IonCard, ToastController } from '@ionic/angular';
 import { AnimalsCards, FoodCards, FortniteCards } from './memory.objects';
+import { SoundsService } from '../../shared/sounds.service';
 
 export interface gameCard {
   name: string,
@@ -39,12 +40,14 @@ export class Tab3Page {
     private router: Router, 
     private toastController: ToastController,
     private alertController: AlertController,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private sound: SoundsService
     ) { }
 
   ionViewDidEnter(){ this.createBoard(); }
 
   createBoard(){
+    this.sound.shuffleCards();
     let cards: gameCard[] = [];
     // Card pair creator
     for( let i = 0; i < this.cardArray.length * 2; i++){
@@ -93,6 +96,7 @@ export class Tab3Page {
   flipCard(card: gameCard){
     // Check if pair card has been found
     if(!card.found && !this.blockButton && this.cardsChosen.length < 2){
+      this.sound.flipUpSound();
       const index: number = parseInt(''+card.id);
       card.image = this.cardArray[index].image;
       // Save selected card
@@ -108,11 +112,12 @@ export class Tab3Page {
       const index1: number = parseInt(''+this.cardsChosen[0].index);
       const index2: number = parseInt(''+this.cardsChosen[1].index);
       if(this.cardsChosen[0].name === this.cardsChosen[1].name){
+        // Call card processor if match
         await this.processCards(index1,index2);
       } else {
-        console.log('not match')
         this.toastShow('Sorry, try again','close-circle', 'danger');
         // If not the same card, flip both cards after 2 seconds and clean selection
+        setTimeout(() => { this.sound.flipDownSound(); }, 1200);
         setTimeout(() => {
           this.shuffledCards[index1].image = this.flipDown;
           this.shuffledCards[index2].image = this.flipDown;
@@ -125,11 +130,11 @@ export class Tab3Page {
 
   processCards(index1: number, index2: number){
     return new Promise((resolve)=> {
-      console.log('found a match!');
-      this.toastShow('You have clicked the same image!','checkmark-circle', 'success')
+      this.toastShow('You have clicked the same image!','checkmark-circle', 'success');
       // If not the same card, flip both cards after 2 seconds and clean selection
+      setTimeout(() => { this.sound.positiveSound();}, 1500);
       setTimeout(() => {
-        // Set card as found
+        // Set card as found on card list
         const card1: number = parseInt(''+this.cardsChosen[0].id);
         this.cardArray[card1].found = true;
         // Set images as white.
@@ -153,6 +158,7 @@ export class Tab3Page {
 
   async presentAlert() {
     // Show an Congratulations
+    this.sound.winGame();
     const alert = await this.alertController.create({
       header: 'YOU WIN!',
       message: 'Congratulations, you found them all!',
@@ -161,10 +167,12 @@ export class Tab3Page {
 
     await alert.present();
     await alert.onDidDismiss().then(() => {
+      // Restart Game
       this.createBoard();
     })
   }
 
+  // Show text in the screen
   async toastShow(message:string, icon: string, color: string){
     const toast = await this.toastController.create({
       message,
@@ -173,11 +181,12 @@ export class Tab3Page {
       icon,
       color
     });
-
     await toast.present();
   }
 
+  // Modal to display an handle options
   async presentLevels() {
+    this.sound.optionSound();
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'PICK A LEVEL',
       buttons: [
@@ -217,9 +226,10 @@ export class Tab3Page {
     });
 
     await actionSheet.present();
-    actionSheet.onDidDismiss().then(option => {
-      console.log(option)
+    actionSheet.onWillDismiss().then(option => {
       if(option.data){
+        if(option.data.action !== 'cancel'){ this.sound.unlockSound();}
+        else { this.sound.optionSound(); }
         switch(option.data.action){
           case 'food/': 
             this.gameTheme = 'food/';
@@ -250,9 +260,9 @@ export class Tab3Page {
   }
 
   setUpLevel(){
+    // Changes theme of the cards depending of level selected.
     this.img = 'assets/game_two/'+this.gameTheme;
     this.flipDown = this.img + 'blank.png';
-    console.log(this.cardArray)
     this.createBoard();
   }
 

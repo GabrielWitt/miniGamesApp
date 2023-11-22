@@ -1,39 +1,42 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="start" class="goBack_button dvoraGreen">
+    <!-- <ion-buttons slot="start" class="goBack_button dvoraGreen">
       <ion-icon style="font-size: 22px !important;" name="chevron-back-outline" (click)=goBack()></ion-icon> Back 
-    </ion-buttons>
-    <ion-title> <h1>Game: Rock - Paper - Scissors</h1></ion-title>
+    </ion-buttons> -->
+    <ion-title> <h1>Game: <ion-icon name="planet-outline"></ion-icon> - <ion-icon name="document-outline"></ion-icon> - <ion-icon name="cut-outline"></ion-icon></h1> </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-row class="ion-margin">
     <ion-col class="ion-text-center">
-      <ion-row *ngIf="userChoice">
+      <ion-row>
         <ion-col>
           <ion-card>
-            <ion-img src="../../../assets/game_one/{{userChoice}}.png"></ion-img>
+            <ion-img *ngIf="userChoice" src="../../../assets/game_one/{{userChoice}}.png"></ion-img>
+            <ion-img *ngIf="!userChoice" src="../../../assets/game_one/white.jpg"></ion-img>
           </ion-card>
         </ion-col>
       </ion-row>
-      <h2>User Choice: <span id="user-choice">{{userChoice}}</span></h2>
+      <h2>User Choice</h2>
     </ion-col>
     <ion-col class="ion-text-center">
-      <ion-row *ngIf="resultImage">
+      <ion-row [@pulse]="pulseState">
         <ion-col>
           <ion-card>
-            <ion-img src="../../../assets/game_one/{{resultImage}}.png"></ion-img>
+            <ion-img *ngIf="resultImage" src="../../../assets/game_one/{{resultImage}}.png"></ion-img>
+            <ion-img *ngIf="!resultImage" src="../../../assets/game_one/white.jpg"></ion-img>
           </ion-card>
         </ion-col>
       </ion-row>
       <h2>Result: <span id="result">{{resultDisplay}}</span></h2>
     </ion-col>
     <ion-col class="ion-text-center">
-      <ion-row *ngIf="computerChoice">
+      <ion-row>
         <ion-col>
           <ion-card>
-            <ion-img src="../../../assets/game_one/{{computerChoice}}.png"></ion-img>
+            <ion-img *ngIf="computerChoice" src="../../../assets/game_one/{{computerChoice}}.png"></ion-img>
+            <ion-img *ngIf="!computerChoice" src="../../../assets/game_one/white.jpg"></ion-img>
           </ion-card>
         </ion-col>
       </ion-row>
@@ -42,14 +45,12 @@
   </ion-row>
   <ion-row class="ion-margin">
     <ion-col class="ion-text-center">
-      <h1>Select Paper, Scissors or Rock</h1>
+      <h1>Select between</h1>
+      <h1>Rock, Paper or Scissors </h1>
     </ion-col>
   </ion-row>
   <ion-row class="ion-margin">
     <ion-col class="ion-text-center" *ngFor="let option of possibleChoices">
-      <ion-button expand="block" (click)="clickChoice(option)">
-        {{option.name}}
-      </ion-button>
       <ion-row>
         <ion-col size="2"></ion-col>
         <ion-col (click)="clickChoice(option)">
@@ -59,6 +60,9 @@
         </ion-col>
         <ion-col size="2"></ion-col>
       </ion-row>
+      <ion-button expand="block" (click)="clickChoice(option)">
+        {{option.name}}
+      </ion-button>
     </ion-col>
   </ion-row>
 </ion-content>
