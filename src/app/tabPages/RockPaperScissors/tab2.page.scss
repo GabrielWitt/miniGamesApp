@@ -1,3 +1,20 @@
 ion-card{
     margin: 0;
 }
+
+ion-row{
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.userBg{
+    background-color: lightblue;
+}
+
+.computerBg{
+    background-color: lightcoral;
+}
+
+.selectedBg{
+    background-color: lightgreen;
+}
