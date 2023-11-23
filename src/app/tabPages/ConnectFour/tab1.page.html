@@ -1,0 +1,28 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="end" class="ion-text-end">
+      Options <ion-icon style="font-size: 22px !important;" name="chevron-down"></ion-icon>  
+    </ion-buttons>
+    <ion-title class="ion-text-center"> <h1>Game: Connect Four</h1></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-row>
+    <ion-col class="ion-text-center">
+      <h3>The current player is: Player {{CurrentPlayer}}</h3>
+      <h3 *ngIf="result">{{result}}</h3>
+    </ion-col>
+  </ion-row>
+  <div class="grid">
+    <div *ngFor="let square of squares" (click)="clickSquare(square)" 
+    class="gameSquare emptySquare {{square.lastLine?'lastLine':''}}">
+    <div *ngIf="!square.lastLine" class="chip {{square.status === 'white'? 'emptyChip' : square.status === 'red'? 'playerOne':'playerTwo'}}"></div>
+  </div>
+  </div>
+  <ion-row *ngIf="result">
+    <ion-col class="ion-text-center">
+      <ion-button (click)="createBoard()">Start New Board</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

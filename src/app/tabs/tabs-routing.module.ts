@@ -9,7 +9,7 @@ const routes: Routes = [
     children: [
       {
         path: 'tab1',
-        loadChildren: () => import('../tabPages/tab1/tab1.module').then(m => m.Tab1PageModule)
+        loadChildren: () => import('../tabPages/ConnectFour/tab1.module').then(m => m.Tab1PageModule)
       },
       {
         path: 'tab2',
@@ -18,6 +18,10 @@ const routes: Routes = [
       {
         path: 'tab3',
         loadChildren: () => import('../tabPages/MemoryGame/tab3.module').then(m => m.Tab3PageModule)
+      },
+      {
+        path: 'tab4',
+        loadChildren: () => import('../tabPages/space-invaders/space-invaders.module').then(m => m.SpaceInvadersPageModule)
       },
       {
         path: '',
@@ -37,3 +41,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
 })
 export class TabsPageRoutingModule {}
+
+//src/app/

@@ -1,0 +1,59 @@
+$squareWSmall: 50;
+$boardWSmall: 352;
+$boardHSmall: 302;
+
+$squareW: 55;
+$boardW: 387;
+$boardH: 332;
+
+$squareWMed: 100;
+$boardWMed: 704;
+$boardHMed: 604;
+
+$squareWLg: 142;
+$boardWMLg: 996;
+$boardHLg: 854;
+
+.grid{
+    margin: 0 auto;
+    border: 2px solid black;
+    height: $boardHMed+px;
+    width: $boardWMed+px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.gameSquare{
+    height: $squareWMed+px;
+    width: $squareWMed+px;
+}
+
+.chip{
+    margin: 10px auto;
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+}
+
+.playerOne{
+    background-color: red;
+    border-radius: 50%;
+}
+
+.playerTwo{
+    background-color: yellowgreen;
+    border-radius: 50%;
+}
+
+.emptyChip{
+    background-color: white;
+}
+
+.emptySquare{
+    background-color: blue;
+}
+
+.lastLine{
+    background-color: white;
+    border-top: 2px solid black;
+}
