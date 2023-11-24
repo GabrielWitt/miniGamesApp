@@ -1,4 +1,4 @@
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController, AlertController, IonCard, ToastController } from '@ionic/angular';
 import { AnimalsCards, FoodCards, FortniteCards } from './memory.objects';
@@ -18,6 +18,14 @@ export interface gameCard {
   styleUrls: ['tab3.page.scss']
 })
 export class Tab3Page {
+  playing = false;
+  @HostListener('document:mousemove', ['$event']) 
+  onMouseMove(e:any) { 
+    if(!this.playing){
+      this.sound.playBackgroundMusic(1);
+      this.playing = true;
+    } 
+  }
   @ViewChildren(IonCard, { read: ElementRef }) cardElements!: QueryList<ElementRef<HTMLIonCardElement>>;
   gridDisplay: HTMLElement | null = document.getElementById('grid');
   gameTheme = 'food/'

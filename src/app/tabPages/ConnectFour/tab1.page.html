@@ -17,12 +17,7 @@
   <div class="grid">
     <div *ngFor="let square of squares" (click)="clickSquare(square)" 
     class="gameSquare emptySquare {{square.lastLine?'lastLine':''}}">
-    <div *ngIf="!square.lastLine" class="chip {{square.status === 'white'? 'emptyChip' : square.status === 'red'? 'playerOne':'playerTwo'}}"></div>
+    <div *ngIf="!square.lastLine" class="chip {{square.status === 'white'? 'emptyChip' : square.status === 'red'? 'playerOne':'playerTwo'}}">{{square.id}}</div>
   </div>
   </div>
-  <ion-row *ngIf="result">
-    <ion-col class="ion-text-center">
-      <ion-button (click)="createBoard()">Start New Board</ion-button>
-    </ion-col>
-  </ion-row>
 </ion-content>

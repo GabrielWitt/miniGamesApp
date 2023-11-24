@@ -4,6 +4,15 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SoundsService {
+  bgMusic = [
+    {src: 'assets/game_one/PaperScissorsRockGame.mp3', duration: '04:24', game:1 },
+    {src: 'assets/game_two/MemoryGame.mp3', duration:  '00:31', game:2 },
+    {src: 'assets/game_three/ConnectFour.mp3', duration:  '02:07', game:3 },
+    {src: 'assets/game_four/SpaceInvaders.mp3', duration:  '02:20', game:4 },
+  ]
+
+  BackgroundMusic: HTMLAudioElement = new Audio();
+  bgMusicInterval: any;
 
   constructor() { }
 
@@ -30,6 +39,10 @@ export class SoundsService {
 
   shuffleCards(){ this.playSound(`assets/sounds/shuffle.mp3`); };
 
+  /* ConnectFour Sounds */
+  insertChip(){ this.playSound(`assets/game_three/coinPut.mp3`); };
+  setChip(){ this.playSound(`assets/game_three/setCoin.mp3`); };
+
   /* Other Game sounds */
 
   optionSound(){ this.playSound(`assets/sounds/showOption.wav`); }
@@ -40,6 +53,28 @@ export class SoundsService {
 
   increaseSound(){ this.playSound(`assets/sounds/coinsIncreasePresentation.wav`); }
 
+  playBackgroundMusic(gameIndex: number){
+    let duration = 0;
+    let time = this.bgMusic[gameIndex].duration.split(':');
+    const time1 = parseInt(time[0]) * 60;
+    const time2 = parseInt(time[1]);
+    duration = (time1 + time2) * 1000
+    const that = this;
+    console.log(this.bgMusic[gameIndex].src)
+    this.BackgroundMusic.src = this.bgMusic[gameIndex].src;
+    this.BackgroundMusic.load();
+    this.BackgroundMusic.volume = 0.1;
+    this.BackgroundMusic.play();
+    // Code that restart track and keep playing the music
+    this.bgMusicInterval = setInterval(() =>{
+      that.BackgroundMusic.play();
+    }, duration)
+  }
+
+  stopBgMusic(){
+    this.BackgroundMusic.pause() // .stop();
+    clearInterval(this.bgMusicInterval);
+  }
 
   playSound(src: string){
     let audio = new Audio();

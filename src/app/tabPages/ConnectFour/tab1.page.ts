@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
+import { AlertController } from '@ionic/angular';
+import { SoundsService } from 'src/app/shared/sounds.service';
 
 export interface Square {
   id: number, 
@@ -13,15 +15,37 @@ export interface Square {
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page {
+  playing = false;
+  @HostListener('document:mousemove', ['$event']) 
+  onMouseMove(e:any) { 
+    if(!this.playing){
+      this.sound.playBackgroundMusic(3);
+      this.playing = true;
+    } 
+  }
   squares: any = [];
   CurrentPlayer: 1 | 2 = 1;
   result: any;
+  loading = false;
+  fallTime = 150;
+  recoverTime = 100;
 
-  constructor() {}
+  constructor(
+    private sound: SoundsService,
+    private alertController: AlertController
+  ) {}
 
   ionViewDidEnter(){
     this.calculateGameSize();
     this.createBoard();
+    if(!this.playing){
+      this.sound.playBackgroundMusic(2);
+      this.playing = true;
+    } 
+  }
+
+  ionViewWillLeave(){
+    this.sound.stopBgMusic();
   }
 
   createBoard(){
@@ -35,49 +59,134 @@ export class Tab1Page {
     this.CurrentPlayer = 1;
   }
 
-  clickSquare(square: Square){
-    const takenSquare = this.squares[square.id + 7];
-    if(takenSquare.taken && !square.lastLine && this.result === ''){
-      if(this.CurrentPlayer === 1){
-        this.squares[square.id].status = 'red';
-        this.squares[square.id].taken = true;
-        this.CurrentPlayer = 2;
-      } else if(this.CurrentPlayer === 2) {
-        this.squares[square.id].status = 'green';
-        this.squares[square.id].taken = true;
-        this.CurrentPlayer = 1;
+  async clickSquare(square: Square){
+    if(!this.loading){
+      this.sound.insertChip();
+      this.loading = true;
+      let chip = -1;
+      for(let i=square.id;i<49;i=i+7){
+        chip = await this.checkSquare(this.squares[i]);
+        if(chip > -1){ break; }
       }
-    };
-    this.checkBoard();
+      this.fallEffect(square.id,chip)
+    }
   } 
 
-  checkBoard(){
-    for (let y = 0; y < winningArrays.length; y++) {
-      const square1 = this.squares[winningArrays[y][0]]
-      const square2 = this.squares[winningArrays[y][1]]
-      const square3 = this.squares[winningArrays[y][2]]
-      const square4 = this.squares[winningArrays[y][3]]
+  // Verify where the chip will fall
+  async checkSquare(square: Square){
+    return new Promise<number>((resolve) => {
+      const takenSquare = this.squares[square.id + 7];
+      if(takenSquare.taken && !square.lastLine && this.result === ''){
+        resolve(square.id);
+      } else {
+        resolve(-1);
+      };
+    })
+  }
 
-      //check those squares to see if they all have the class of player-one
-      if (
-        square1.status === 'blue' &&
-        square2.status === 'blue' &&
-        square3.status === 'blue' &&
-        square4.status === 'blue'
-      )
-      {
-        this.result = 'Player One Wins!'
+  // Create falling effect on the board
+  async fallEffect(start: number, chipSet: number){
+    let count = start;
+    let chipColor = this.CurrentPlayer === 1 ? 'red' : 'green';
+    let that = this;
+    const ChipAnimation = await setInterval(()=>{
+      that.changingColor(count,chipColor);
+      count = count + 7;
+      if(count > chipSet){ 
+        clearInterval(ChipAnimation);
+        that.setSpace(chipSet);
       }
-      //check those squares to see if they all have the class of player-two
-      if (
-        square1.status === 'red' &&
-        square2.status === 'red' &&
-        square3.status === 'red' &&
-        square4.status === 'red'
-      )
-      {
-        this.result = 'Player Two Wins!'
+    },this.fallTime)
+  }
+
+  // Change color to create falling effect
+  changingColor(count: number, chipColor: string){
+    this.squares[count].status = chipColor;
+    setTimeout(() => {
+      this.squares[count].status = 'white';
+    }, this.recoverTime);
+  }
+
+  // Set the chip and call the board status verifier;
+  setSpace(chipSet:number){
+    setTimeout(() => {
+      if(this.CurrentPlayer === 1){
+        this.squares[chipSet].status = 'red';
+        this.squares[chipSet].taken = true;
+        this.CurrentPlayer = 2;
+      } else if(this.CurrentPlayer === 2) {
+        this.squares[chipSet].status = 'green';
+        this.squares[chipSet].taken = true;
+        this.CurrentPlayer = 1;
       }
+      this.sound.setChip();
+      this.loading = false;
+      this.checkBoard();
+    }, this.fallTime);
+  }
+
+  checkBoard(){
+    horizontalList.forEach(async (chipId: number) => { 
+      if(!this.result){  this.generateFour(chipId,1,false); }
+      else{ return ; }
+    })
+    verifyList.forEach(async (chipId: number) => { 
+      // console.log(chipId)
+      if(!this.result){ 
+        const hList = this.generateFour(chipId,1,false);
+        const vList = this.generateFour(chipId,7,false);
+        const sideways = this.generateFour(chipId,8,false);
+       }
+      else{ return ; }
+    })
+    reverseList.forEach(async (chipId: number) => { 
+      // console.log(chipId)
+      if(!this.result){  
+        this.generateFour(chipId,7,false); 
+        this.generateFour(chipId,6,false);
+      }
+      else{ return ; }
+    })
+  }
+
+  generateFour(index: number, spaceB: number, sideways: boolean){
+    let list = []; let count = index;
+    for(let i =0; i<4;i++){
+      list.push(count)
+      if(sideways){ count = count + spaceB + i +1;}
+      else{ count = count + spaceB; }
+    }
+    this.checkFour(list);
+    return list;
+  }
+
+  checkFour(chipList: number[]){
+    const square1 = this.squares[chipList[0]];
+    const square2 = this.squares[chipList[1]];
+    const square3 = this.squares[chipList[2]];
+    const square4 = this.squares[chipList[3]];
+
+    //check those squares to see if they all have the class of player-one
+    if (
+      square1.status === 'green' &&
+      square2.status === 'green' &&
+      square3.status === 'green' &&
+      square4.status === 'green'
+    )
+    {
+      this.result = 'Player Two Wins!'
+      this.presentAlert();
+    }
+    //check those squares to see if they all have the class of player-two
+    if (
+      square1.status === 'red' &&
+      square2.status === 'red' &&
+      square3.status === 'red' &&
+      square4.status === 'red'
+    )
+    {
+      this.result = 'Player One Wins!';
+      this.presentAlert();
     }
   }
   
@@ -88,77 +197,37 @@ export class Tab1Page {
     
   }
 
+  async presentAlert() {
+    // Show an Congratulations
+    this.sound.winGame();
+    const alert = await this.alertController.create({
+      header: 'YOU WIN!',
+      message: 'Congratulations, '+this.result,
+      buttons: ['Restart Game'],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then(() => {
+      // Restart Game
+      this.createBoard();
+    })
+  }
+
 }
 
-//Winning Arrays
-export const winningArrays = [
-  [0, 1, 2, 3],
-  [41, 40, 39, 38],
-  [7, 8, 9, 10],
-  [34, 33, 32, 31],
-  [14, 15, 16, 17],
-  [27, 26, 25, 24],
-  [21, 22, 23, 24],
-  [20, 19, 18, 17],
-  [28, 29, 30, 31],
-  [13, 12, 11, 10],
-  [35, 36, 37, 38],
-  [6, 5, 4, 3],
-  [0, 7, 14, 21],
-  [41, 34, 27, 20],
-  [1, 8, 15, 22],
-  [40, 33, 26, 19],
-  [2, 9, 16, 23],
-  [39, 32, 25, 18],
-  [3, 10, 17, 24],
-  [38, 31, 24, 17],
-  [4, 11, 18, 25],
-  [37, 30, 23, 16],
-  [5, 12, 19, 26],
-  [36, 29, 22, 15],
-  [6, 13, 20, 27],
-  [35, 28, 21, 14],
-  [0, 8, 16, 24],
-  [41, 33, 25, 17],
-  [7, 15, 23, 31],
-  [34, 26, 18, 10],
-  [14, 22, 30, 38],
-  [27, 19, 11, 3],
-  [35, 29, 23, 17],
-  [6, 12, 18, 24],
-  [28, 22, 16, 10],
-  [13, 19, 25, 31],
-  [21, 15, 9, 3],
-  [20, 26, 32, 38],
-  [36, 30, 24, 18],
-  [5, 11, 17, 23],
-  [37, 31, 25, 19],
-  [4, 10, 16, 22],
-  [2, 10, 18, 26],
-  [39, 31, 23, 15],
-  [1, 9, 17, 25],
-  [40, 32, 24, 16],
-  [9, 17, 25, 33],
-  [8, 16, 24, 32],
-  [11, 17, 23, 29],
-  [12, 18, 24, 30],
-  [1, 2, 3, 4],
-  [5, 4, 3, 2],
-  [8, 9, 10, 11],
-  [12, 11, 10, 9],
-  [15, 16, 17, 18],
-  [19, 18, 17, 16],
-  [22, 23, 24, 25],
-  [26, 25, 24, 23],
-  [29, 30, 31, 32],
-  [33, 32, 31, 30],
-  [36, 37, 38, 39],
-  [40, 39, 38, 37],
-  [7, 14, 21, 28],
-  [8, 15, 22, 29],
-  [9, 16, 23, 30],
-  [10, 17, 24, 31],
-  [11, 18, 25, 32],
-  [12, 19, 26, 33],
-  [13, 20, 27, 34],
+//Winning Point Possibilities.
+export const verifyList = [
+  0, 1, 2, 3,
+  7, 8, 9, 10,
+  14, 15, 16, 17,
+]
+export const reverseList = [
+  3, 4, 5, 6,
+  10, 11, 12, 13,
+  17, 18, 19, 20
+]
+export const horizontalList = [
+  21, 22, 23, 24,
+  28, 29, 30, 31,
+  35, 36, 37, 38,
 ]

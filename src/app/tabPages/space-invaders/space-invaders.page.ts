@@ -1,7 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import BulletController from './controllers/bullet.controller';
 import EnemyController from './controllers/enemy.controller';
 import { Player } from './controllers/Player';
+import { SoundsService } from 'src/app/shared/sounds.service';
 
 @Component({
   selector: 'app-space-invaders',
@@ -9,6 +10,14 @@ import { Player } from './controllers/Player';
   styleUrls: ['./space-invaders.page.scss'],
 })
 export class SpaceInvadersPage implements OnInit {
+  playing = false;
+  @HostListener('document:mousemove', ['$event']) 
+  onMouseMove(e:any) { 
+    if(!this.playing){
+      this.sound.playBackgroundMusic(3);
+      this.playing = true;
+    } 
+  }
   @ViewChild('playerImg') playerImg!: ElementRef;
   @ViewChild('enemy1Img') enemy1Img!: ElementRef;
   @ViewChild('enemy2Img') enemy2Img!: ElementRef;
@@ -27,7 +36,9 @@ export class SpaceInvadersPage implements OnInit {
   enemyController:any; // = new EnemyController(
   player:any; // = new Player(this.canvas, 3, this.playerBulletController);
 
-  constructor() { }
+  constructor(
+    private sound: SoundsService,
+  ) { }
 
   ngAfterViewInit(){
   }

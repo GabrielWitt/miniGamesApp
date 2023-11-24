@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { collapseAnimation, pulseAnimation, rubberBandAnimation } from 'angular-animations';
 import { SoundsService } from '../../shared/sounds.service';
@@ -17,6 +17,14 @@ export interface Game1Option {
   ]
 })
 export class Tab2Page {
+  playing = false;
+  @HostListener('document:mousemove', ['$event']) 
+  onMouseMove(e:any) { 
+    if(!this.playing){
+      this.sound.playBackgroundMusic(0);
+      this.playing = true;
+    } 
+  }
   computerChoice = '';
   userChoice = '';
   resultDisplay = '';
