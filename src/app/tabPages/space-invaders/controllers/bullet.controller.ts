@@ -1,3 +1,4 @@
+import { SoundsService } from 'src/app/shared/sounds.service';
 import { Bullet } from './bullet';
 
 export default class BulletController {
@@ -8,12 +9,14 @@ export default class BulletController {
     bulletColor: any;
     soundEnabled: any;
     shootSound: any;
+
   
-    constructor(canvas: any, maxBulletsAtATime: any, bulletColor: any, soundEnabled: any) {
+    constructor(canvas: any, maxBulletsAtATime: any, bulletColor: any, soundEnabled: any,
+      private sound: SoundsService) {
       this.canvas = canvas;
       this.maxBulletsAtATime = maxBulletsAtATime;
       this.bulletColor = bulletColor;
-      this.soundEnabled = soundEnabled;
+      this.soundEnabled = soundEnabled; this.sound.muteSound;
   
       this.shootSound = new Audio("assets/game_four/sounds/shoot.wav");
       this.shootSound.volume = 0.1;

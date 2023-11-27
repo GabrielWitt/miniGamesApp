@@ -27,13 +27,13 @@ export class Player {
       document.addEventListener("keyup", this.keyup);
     }
   
-    draw(ctx: { drawImage: (arg0: any, arg1: any, arg2: any, arg3: any, arg4: any) => void; }) {
+    draw(ctx: CanvasRenderingContext2D | null) {
       if (this.shootPressed) {
         this.bulletController.shoot(this.x + this.width / 2, this.y, 4, 10);
       }
       this.move();
       this.collideWithWalls();
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      ctx?.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
   
     collideWithWalls() {
@@ -57,7 +57,7 @@ export class Player {
     }
   
     keydown = (event: { code: string; }) => {
-      if (event.code == "ArrowRight") {
+      if (event.code == "ArrowRight") { 
         this.rightPressed = true;
       }
       if (event.code == "ArrowLeft") {

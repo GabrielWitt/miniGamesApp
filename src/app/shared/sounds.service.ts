@@ -13,6 +13,7 @@ export class SoundsService {
 
   BackgroundMusic: HTMLAudioElement = new Audio();
   bgMusicInterval: any;
+  muteSound = false;
 
   constructor() { }
 
@@ -54,33 +55,48 @@ export class SoundsService {
   increaseSound(){ this.playSound(`assets/sounds/coinsIncreasePresentation.wav`); }
 
   playBackgroundMusic(gameIndex: number){
-    let duration = 0;
-    let time = this.bgMusic[gameIndex].duration.split(':');
-    const time1 = parseInt(time[0]) * 60;
-    const time2 = parseInt(time[1]);
-    duration = (time1 + time2) * 1000
-    const that = this;
-    console.log(this.bgMusic[gameIndex].src)
-    this.BackgroundMusic.src = this.bgMusic[gameIndex].src;
-    this.BackgroundMusic.load();
-    this.BackgroundMusic.volume = 0.1;
-    this.BackgroundMusic.play();
-    // Code that restart track and keep playing the music
-    this.bgMusicInterval = setInterval(() =>{
-      that.BackgroundMusic.play();
-    }, duration)
+    if(!this.muteSound){
+      this.stopBgMusic();
+      let duration = 0;
+      let time = this.bgMusic[gameIndex].duration.split(':');
+      const time1 = parseInt(time[0]) * 60;
+      const time2 = parseInt(time[1]);
+      duration = (time1 + time2) * 1000
+      const that = this;
+      console.log(this.bgMusic[gameIndex].src)
+      this.BackgroundMusic.src = this.bgMusic[gameIndex].src;
+      this.BackgroundMusic.load();
+      this.BackgroundMusic.volume = 0.1;
+      this.BackgroundMusic.play();
+      // Code that restart track and keep playing the music
+      this.bgMusicInterval = setInterval(() =>{
+        that.BackgroundMusic.play();
+      }, duration)
+    }
   }
 
   stopBgMusic(){
-    this.BackgroundMusic.pause() // .stop();
+    this.BackgroundMusic.pause();
     clearInterval(this.bgMusicInterval);
   }
 
   playSound(src: string){
-    let audio = new Audio();
-    audio.src = src;
-    audio.load();
-    audio.play();
+    if(!this.muteSound){
+      let audio = new Audio();
+      audio.src = src;
+      audio.load();
+      audio.play();
+    }
+  }
+
+  muteSounds(gameNo: number){
+    if(this.muteSound){
+      this.muteSound = false;
+      this.playBackgroundMusic(gameNo)
+    } else {
+      this.muteSound = true;
+      this.stopBgMusic();
+    }
   }
 
 }

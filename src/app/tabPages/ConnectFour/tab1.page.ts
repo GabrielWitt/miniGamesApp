@@ -1,5 +1,5 @@
 import { Component, HostListener } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { ActionSheetController, AlertController } from '@ionic/angular';
 import { SoundsService } from 'src/app/shared/sounds.service';
 
 export interface Square {
@@ -29,10 +29,12 @@ export class Tab1Page {
   loading = false;
   fallTime = 150;
   recoverTime = 100;
+  screenSize = '';
 
   constructor(
     private sound: SoundsService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private actionSheetCtrl: ActionSheetController
   ) {}
 
   ionViewDidEnter(){
@@ -60,6 +62,10 @@ export class Tab1Page {
   }
 
   async clickSquare(square: Square){
+    if(!this.playing){
+      this.sound.playBackgroundMusic(3);
+      this.playing = true;
+    } 
     if(!this.loading){
       this.sound.insertChip();
       this.loading = true;
@@ -131,16 +137,14 @@ export class Tab1Page {
       else{ return ; }
     })
     verifyList.forEach(async (chipId: number) => { 
-      // console.log(chipId)
       if(!this.result){ 
-        const hList = this.generateFour(chipId,1,false);
-        const vList = this.generateFour(chipId,7,false);
-        const sideways = this.generateFour(chipId,8,false);
+        this.generateFour(chipId,1,false);
+        this.generateFour(chipId,7,false);
+        this.generateFour(chipId,8,false);
        }
       else{ return ; }
     })
     reverseList.forEach(async (chipId: number) => { 
-      // console.log(chipId)
       if(!this.result){  
         this.generateFour(chipId,7,false); 
         this.generateFour(chipId,6,false);
@@ -189,13 +193,6 @@ export class Tab1Page {
       this.presentAlert();
     }
   }
-  
-  calculateGameSize(){
-    var w = window.innerWidth;
-    console.log(w);
-    console.log(document.documentElement.style)
-    
-  }
 
   async presentAlert() {
     // Show an Congratulations
@@ -213,9 +210,67 @@ export class Tab1Page {
     })
   }
 
+  // Modal to display an handle options
+  async presentOptions() {
+    this.sound.optionSound();
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'PICK A LEVEL',
+      buttons: [
+        {
+          text: 'Enable / Disable Sounds',
+          data: {
+            action: 'sounds',
+          },
+        },
+        {
+          text: 'Restart Game',
+          role: 'destructive',
+          data: {
+            action: 'restart',
+          },
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          data: {
+            action: 'cancel',
+          },
+        },
+      ],
+    });
+
+    await actionSheet.present();
+    actionSheet.onWillDismiss().then(option => {
+      if(option.data){
+        if(option.data.action !== 'cancel'){ this.sound.unlockSound();}
+        else { this.sound.optionSound(); }
+        switch(option.data.action){
+          case 'restart': this.createBoard(); break;
+          case 'sounds': this.sound.muteSounds(3); break;
+          default: console.log('cancel');
+        }
+      }
+    })
+  }
+  
+  //Adjust game size to screen
+  calculateGameSize(){
+    var w = window.innerWidth;
+    console.log(w);
+    if(w >= 599 && w <= 998){
+      this.screenSize = 'Mid';
+      return
+    } else if(w >= 998){
+      this.screenSize = 'Large';
+    } else{
+      this.screenSize = '';
+    }
+    
+  }
+
 }
 
-//Winning Point Possibilities.
+//Winning Possibilities.
 export const verifyList = [
   0, 1, 2, 3,
   7, 8, 9, 10,

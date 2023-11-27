@@ -102,6 +102,10 @@ export class Tab3Page {
   }
 
   flipCard(card: gameCard){
+    if(!this.playing){
+      this.sound.playBackgroundMusic(1);
+      this.playing = true;
+    } 
     // Check if pair card has been found
     if(!card.found && !this.blockButton && this.cardsChosen.length < 2){
       this.sound.flipUpSound();
@@ -217,6 +221,12 @@ export class Tab3Page {
           },
         },
         {
+          text: 'Enable / Disable Sounds',
+          data: {
+            action: 'sounds',
+          },
+        },
+        {
           text: 'Restart Game',
           role: 'destructive',
           data: {
@@ -261,6 +271,7 @@ export class Tab3Page {
             this.setUpLevel();
             break;
           case 'restart': this.createBoard(); break;
+          case 'sounds': this.sound.muteSounds(1); break;
           default: console.log('cancel');
         }
       }

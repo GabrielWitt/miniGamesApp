@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="end" class="ion-text-end">
+    <ion-buttons slot="end" class="ion-text-end" (click)="presentOptions()">
       Options <ion-icon style="font-size: 22px !important;" name="chevron-down"></ion-icon>  
     </ion-buttons>
     <ion-title class="ion-text-center"> <h1>Game: Connect Four</h1></ion-title>
@@ -14,10 +14,10 @@
       <h3 *ngIf="result">{{result}}</h3>
     </ion-col>
   </ion-row>
-  <div class="grid">
+  <div class="grid{{screenSize}}">
     <div *ngFor="let square of squares" (click)="clickSquare(square)" 
-    class="gameSquare emptySquare {{square.lastLine?'lastLine':''}}">
-    <div *ngIf="!square.lastLine" class="chip {{square.status === 'white'? 'emptyChip' : square.status === 'red'? 'playerOne':'playerTwo'}}">{{square.id}}</div>
+    class="gameSquare{{screenSize}} emptySquare {{square.lastLine?'lastLine':''}}">
+    <div *ngIf="!square.lastLine" class="chip{{screenSize}} {{square.status === 'white'? 'emptyChip' : square.status === 'red'? 'playerOne':'playerTwo'}}"></div>
   </div>
   </div>
 </ion-content>

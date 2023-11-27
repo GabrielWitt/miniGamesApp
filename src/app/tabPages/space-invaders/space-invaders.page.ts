@@ -3,6 +3,7 @@ import BulletController from './controllers/bullet.controller';
 import EnemyController from './controllers/enemy.controller';
 import { Player } from './controllers/Player';
 import { SoundsService } from 'src/app/shared/sounds.service';
+import { ActionSheetController } from '@ionic/angular';
 
 @Component({
   selector: 'app-space-invaders',
@@ -11,6 +12,7 @@ import { SoundsService } from 'src/app/shared/sounds.service';
 })
 export class SpaceInvadersPage implements OnInit {
   playing = false;
+  ready = false;
   @HostListener('document:mousemove', ['$event']) 
   onMouseMove(e:any) { 
     if(!this.playing){
@@ -31,41 +33,42 @@ export class SpaceInvadersPage implements OnInit {
   isGameOver = false;
   didWin = false;
 
-  playerBulletController:any; // = new BulletController(this.canvas, 10, "red", true);
-  enemyBulletController:any; // = new BulletController(this.canvas, 4, "white", false);
-  enemyController:any; // = new EnemyController(
-  player:any; // = new Player(this.canvas, 3, this.playerBulletController);
+  playerBulletController: any;
+  enemyBulletController: any;
+  enemyController: any;
+  player: Player | undefined; 
 
   constructor(
     private sound: SoundsService,
+    private actionSheetCtrl: ActionSheetController
   ) { }
 
   ngAfterViewInit(){
   }
 
   ionViewDidEnter(){ 
-    console.log(this.spaceBg)
-    this.space = this.spaceBg.nativeElement;
-    this.canvas = this.myCanvas.nativeElement;
-    this.canvas.width = 600;
-    this.canvas.height = 600;
-    this.ctx = this.canvas.getContext("2d");
-    if(this.ctx){
-      this.ctx?.drawImage(this.space, 0, 0, this.canvas.width, this.canvas.height);
-    }
-    this.startGame();
   }
 
   ngOnInit() {
   }
 
+  startCanvas(){
+    this.ready = true;
+    this.space = this.spaceBg.nativeElement;
+    this.canvas = this.myCanvas.nativeElement;
+    this.canvas.width = 600;
+    this.canvas.height = 600;
+    this.ctx = this.canvas.getContext("2d");
+    this.ctx?.drawImage(this.space, 0, 0, this.canvas.width, this.canvas.height);
+    this.startGame();
+  }
+
   startGame(){
     this.isGameOver = false;
     this.didWin = false;
-
-    this.playerBulletController = new BulletController(this.canvas, 10, "red", true);
+    this.playerBulletController = new BulletController(this.canvas, 10, "red", true, this.sound);
     const enemyImgs = [ this.enemy1Img.nativeElement, this.enemy2Img.nativeElement, this.enemy3Img.nativeElement ]
-    this.enemyBulletController = new BulletController(this.canvas, 4, "white", false);
+    this.enemyBulletController = new BulletController(this.canvas, 4, "white", false, this.sound);
     this.enemyController = new EnemyController(
       this.canvas,
       this.enemyBulletController,
@@ -85,7 +88,7 @@ export class SpaceInvadersPage implements OnInit {
       that.displayGameOver();
       if (!that.isGameOver) {
         that.enemyController.draw(this.ctx);
-        that.player.draw(this.ctx);
+        that.player?.draw(this.ctx);
         that.playerBulletController.draw(this.ctx);
         that.enemyBulletController.draw(this.ctx);
       }
@@ -120,6 +123,71 @@ export class SpaceInvadersPage implements OnInit {
       this.didWin = true;
       this.isGameOver = true;
     }
+  }
+
+  clickedUpLeft(){ 
+    this.player?.keyup({ code: 'ArrowLeft'});
+    setTimeout(() => {
+      this.player?.keydown({ code: 'ArrowLeft'});
+    }, 100);
+  }
+
+  clickedUpRight(){ 
+    this.player?.keyup({ code: 'ArrowRight'});
+    setTimeout(() => {
+      this.player?.keydown({ code: 'ArrowRight'}); 
+    }, 100);
+  }
+
+  clickedUpSpace(){ 
+    this.player?.keyup({ code: 'Space'});
+    setTimeout(() => {
+      this.player?.keydown({ code: 'Space'}); 
+    }, 100);
+  }
+  //  ArrowLeft Space
+
+  // Modal to display an handle options
+  async presentOptions() {
+    this.sound.optionSound();
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'PICK A LEVEL',
+      buttons: [
+        {
+          text: 'Enable / Disable Sounds',
+          data: {
+            action: 'sounds',
+          },
+        },
+        {
+          text: 'Restart Game',
+          role: 'destructive',
+          data: {
+            action: 'restart',
+          },
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          data: {
+            action: 'cancel',
+          },
+        },
+      ],
+    });
+
+    await actionSheet.present();
+    actionSheet.onWillDismiss().then(option => {
+      if(option.data){
+        if(option.data.action !== 'cancel'){ this.sound.unlockSound();}
+        else { this.sound.optionSound(); }
+        switch(option.data.action){
+          case 'restart': this.startCanvas(); break;
+          case 'sounds': this.sound.muteSounds(3); break;
+          default: console.log('cancel');
+        }
+      }
+    })
   }
 
 }
