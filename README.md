@@ -38,10 +38,8 @@ UI Enhancements: Provide visual cues for the players' moves and winning combinat
 
 **Documentation:** Document the codebase and include comments for better understanding and future reference.
 
-## Bonus Enhancements:
 **Sound Effects & Music:** Add sound effects or background music to enhance the gaming experience.
 
-**Leaderboards & Achievements:** Implement a system to track high scores and achievements across games.
 ## Authors
 
 - [@Gabriel Witt](https://www.linkedin.com/in/gabriel-witt)
